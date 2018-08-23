@@ -42,11 +42,11 @@ class ActiveRecordLite {
 
     if (!direction || direction === 'asc') {
       orderedList = this.collection.slice().sort(function(firstItem, secondItem) {
-        return ('' + firstItem[attr]).localeCompare(secondItem[attr]);
+        return firstItem[attr] < secondItem[attr] ? -1 : 1;
       });
     } else if (direction === 'desc') {
       orderedList = this.collection.slice().sort(function(firstItem, secondItem) {
-        return ('' + secondItem[attr]).localeCompare(firstItem[attr]);
+        return firstItem[attr] > secondItem[attr] ? -1 : 1;
       });
     } else {
       orderedList = this.collection;
