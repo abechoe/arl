@@ -77,13 +77,10 @@ class ActiveRecordLite {
       }
     });
 
-    // get unique values from this array:
-    const uniques = attrValues.filter(function(value, index) {
-      return attrValues.indexOf(value) === index;
-    });
-
     const self = this;
-    const groups = uniques.reduce(function(newObj, category) {
+    const groups = attrValues.filter(function(value, index) {
+      return attrValues.indexOf(value) === index;
+    }).reduce(function(newObj, category) {
       newObj[category] = self.where({[attr]: category});
       return newObj;
     }, {});
