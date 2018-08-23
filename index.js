@@ -8,32 +8,24 @@ class ActiveRecordLite {
   }
 
   where(properties) {
-    let matches = [];
-
-    this.collection.forEach(function(object) {
+    const matches = this.collection.filter(function(item) {
       let allMatch = true;
 
-      for (let property in properties) {
-        if (!(property in object) || object[property] !== properties[property]) {
+      for(let property in properties) {
+        if ((!property in item) || item[property] !== properties[property]) {
           allMatch = false;
         }
       }
 
-      if (allMatch) {
-        matches.push(object);
-      }
+      return allMatch;
     });
 
     return new ActiveRecordLite(matches);
   }
 
   not(callback) {
-    let newList = [];
-
-    this.collection.forEach(function(item) {
-      if (!callback(item)) {
-        newList.push(item);
-      }
+    const newList = this.collection.filter(function(item) {
+      return !callback(item);
     });
 
     return new ActiveRecordLite(newList);
@@ -64,18 +56,14 @@ class ActiveRecordLite {
   }
 
   pluck(...args) {
-    let pluckedList;
-
-    pluckedList = this.collection.map(function(item) {
-      let newObj = {};
-
-      args.forEach(function(property) {
+    const pluckedList = this.collection.map(function(item) {
+      return args.reduce(function(newObj, property) {
         if (property in item) {
           newObj[property] = item[property];
         }
-      });
 
-      return newObj;
+        return newObj;
+      }, {});
     });
 
     return new ActiveRecordLite(pluckedList);
@@ -83,24 +71,22 @@ class ActiveRecordLite {
 
   group(attr) {
     // first, get all the different values of this passed in attribute
-    let attrValues =  this.collection.map(function(item) {
+    const attrValues =  this.collection.map(function(item) {
       if (attr in item) {
         return item[attr];
       }
     });
 
     // get unique values from this array:
-    let uniques = [];
-    attrValues.forEach(function(value) {
-      if (uniques.indexOf(value) === -1) {
-        uniques.push(value);
-      }
+    const uniques = attrValues.filter(function(value, index) {
+      return attrValues.indexOf(value) === index;
     });
 
-    let groups = {};
-    uniques.forEach(function(category) {
-      groups[category] = this.where({[attr]: category});
-    }, this);
+    const self = this;
+    const groups = uniques.reduce(function(newObj, category) {
+      newObj[category] = self.where({[attr]: category});
+      return newObj;
+    }, {});
 
     return groups;
   }
