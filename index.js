@@ -70,22 +70,10 @@ class ActiveRecordLite {
   }
 
   group(attr) {
-    // first, get all the different values of this passed in attribute
-    const attrValues =  this.collection.map(function(item) {
-      if (attr in item) {
-        return item[attr];
-      }
-    });
-
-    const self = this;
-    const groups = attrValues.filter(function(value, index) {
-      return attrValues.indexOf(value) === index;
-    }).reduce(function(newObj, category) {
-      newObj[category] = self.where({[attr]: category});
+    return this.collection.reduce((newObj, item) => {
+      newObj[item[attr]] = this.where({[attr]: item[attr]});
       return newObj;
     }, {});
-
-    return groups;
   }
 
   render() {
